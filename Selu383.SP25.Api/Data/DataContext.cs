@@ -19,6 +19,7 @@ namespace Selu383.SP25.Api
         public DbSet<Theater> Theaters { get; set; }
 
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
