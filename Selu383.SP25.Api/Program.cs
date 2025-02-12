@@ -20,20 +20,25 @@ namespace Selu383.SP25.Api
             builder.Services.Configure<StripeSettings>(stripeSettings);
             StripeConfiguration.ApiKey = stripeSettings["SecretKey"];
 
-            // Add services to the container.
-            builder.Services.AddControllers();
+            // Enable CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    policy => policy.AllowAnyOrigin()
+                                    .AllowAnyMethod()
+                                    .AllowAnyHeader());
+            });
 
-            // Swagger implementation
+            // Add services to the container
+            builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // SQL Connection
-            builder.Services.AddDbContext<DataContext>(Options =>
-            {
-                Options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-            });
+            // Database connection
+            builder.Services.AddDbContext<DataContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // Dependency injection for user manager
+            // Identity configuration
             builder.Services.AddIdentity<User, Role>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
@@ -42,51 +47,44 @@ namespace Selu383.SP25.Api
                 options.Password.RequireUppercase = false;
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 8;
-                options.ClaimsIdentity.UserIdClaimType = JwtClaimTypes.Subject; // something for claims
+                options.ClaimsIdentity.UserIdClaimType = JwtClaimTypes.Subject;
                 options.ClaimsIdentity.UserNameClaimType = JwtClaimTypes.Name;
                 options.ClaimsIdentity.RoleClaimType = JwtClaimTypes.Role;
             })
             .AddEntityFrameworkStores<DataContext>()
             .AddDefaultTokenProviders();
 
-            // Service Injections
+            // Register application services
             builder.Services.AddScoped<IMoviesService, MoviesService>();
             builder.Services.AddScoped<IReviewsService, ReviewsService>();
             builder.Services.AddScoped<ITheatersService, TheatersService>();
-
-            // Register UserManager
             builder.Services.AddScoped<UserManager<User>>();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Configure middleware
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
-            // Redirect root URL to Swagger UI
             app.UseRewriter(new RewriteOptions().AddRedirect("^$", "swagger"));
+            app.UseHttpsRedirection();
 
-            // Ensure database is deleted and recreated
+            // Apply CORS policy before authentication
+            app.UseCors("AllowAll");
+            app.UseAuthorization();
+
+            // Database migration and seeding
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
-
-
-                //await dbContext.Database.EnsureDeletedAsync();
-                //await dbContext.Database.EnsureCreatedAsync();
                 await dbContext.Database.MigrateAsync();
-
-
                 await TheaterSeeder.Initialize(dbContext);
             }
 
-            app.UseHttpsRedirection();
-            app.UseAuthorization();
             app.MapControllers();
-
             app.Run();
         }
     }
