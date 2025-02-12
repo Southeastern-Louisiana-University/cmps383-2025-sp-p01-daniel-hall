@@ -5,7 +5,7 @@ using Selu383.SP25.Api.Entity;
 namespace Selu383.SP25.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/theaters")]
     public class TheatersController : ControllerBase
     {
         private readonly ITheatersService _service;
@@ -38,24 +38,6 @@ namespace Selu383.SP25.Api.Controllers
                 return BadRequest("Theater data is required.");
             }
 
-            // Validation for Name, Address, and SeatCount
-            if (string.IsNullOrEmpty(theater.Name))
-            {
-                return BadRequest("Name is required.");
-            }
-            if (theater.Name.Length > 120)
-            {
-                return BadRequest("Name cannot be longer than 120 characters.");
-            }
-            if (string.IsNullOrEmpty(theater.Address))
-            {
-                return BadRequest("Address is required.");
-            }
-            if (theater.SeatCount < 1)
-            {
-                return BadRequest("SeatCount must be at least 1.");
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -72,22 +54,6 @@ namespace Selu383.SP25.Api.Controllers
             {
                 return BadRequest("Invalid request data.");
             }
-            if (string.IsNullOrEmpty(theater.Name))
-            {
-                return BadRequest("Name is required.");
-            }
-            if (theater.Name.Length > 120)
-            {
-                return BadRequest("Name cannot be longer than 120 characters.");
-            }
-            if (string.IsNullOrEmpty(theater.Address))
-            {
-                return BadRequest("Address is required.");
-            }
-            if (theater.SeatCount < 1)
-            {
-                return BadRequest("SeatCount must be at least 1.");
-            }
 
             if (!ModelState.IsValid)
             {
@@ -100,8 +66,12 @@ namespace Selu383.SP25.Api.Controllers
                 return NotFound("Theater not found.");
             }
 
-            await _service.UpdateAsync(id, theater);
-            return Ok(theater);
+            existingTheater.Name = theater.Name;
+            existingTheater.Address = theater.Address;
+            existingTheater.SeatCount = theater.SeatCount;
+
+            await _service.UpdateAsync(id, existingTheater);
+            return Ok(existingTheater);
         }
 
         [HttpDelete("{id}")]
@@ -110,11 +80,11 @@ namespace Selu383.SP25.Api.Controllers
             var existingTheater = await _service.GetByIdAsync(id);
             if (existingTheater == null)
             {
-                return NotFound("Theater not found.");
+                return NotFound();
             }
 
             await _service.DeleteAsync(id);
-            return Ok("Theater deleted successfully.");
+            return Ok();
         }
     }
 }

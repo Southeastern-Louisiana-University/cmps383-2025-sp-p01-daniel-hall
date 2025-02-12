@@ -12,8 +12,8 @@ using Selu383.SP25.Api;
 namespace Selu383.SP25.Api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250212004635_initial")]
-    partial class initial
+    [Migration("20250212232809_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -274,7 +274,8 @@ namespace Selu383.SP25.Api.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
 
                     b.Property<int>("SeatCount")
                         .HasColumnType("int");

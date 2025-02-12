@@ -271,7 +271,8 @@ namespace Selu383.SP25.Api.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
 
                     b.Property<int>("SeatCount")
                         .HasColumnType("int");
