@@ -50,7 +50,7 @@ public class DataContextTests
     }
 
     [TestMethod]
-    public void DataContext_HasHotel()
+    public void DataContext_HasTheater()
     {
         using var scope = context.GetServices().CreateScope();
         var dbContext = GetDataContext(scope);
@@ -60,7 +60,7 @@ public class DataContextTests
             return;
         }
 
-        EnsureSet("Hotel", dbContext);
+        EnsureSet("Theater", dbContext);
     }
 
     public static List<dynamic> EnsureSet(string modelName, DbContext dataContext)
