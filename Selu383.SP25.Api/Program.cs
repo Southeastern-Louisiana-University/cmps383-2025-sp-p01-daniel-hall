@@ -36,7 +36,7 @@ namespace Selu383.SP25.Api
 
             // Database connection
             builder.Services.AddDbContext<DataContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DataContext")));
 
             // Identity configuration
             builder.Services.AddIdentity<User, Role>(options =>
