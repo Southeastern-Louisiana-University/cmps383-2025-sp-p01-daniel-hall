@@ -76,6 +76,7 @@ namespace Selu383.SP25.Api
             app.UseCors("AllowAll");
             app.UseAuthorization();
 
+
             // Database migration and seeding
             using (var scope = app.Services.CreateScope())
             {
